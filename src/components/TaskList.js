@@ -1,5 +1,7 @@
 import React, {Component} from 'react';
 import TaskItem from './TaskItem';
+import {connect} from 'react-redux';
+import * as actions from './../actions/index';
 
 class TaskList extends Component {
   constructor(props) {
@@ -13,26 +15,17 @@ class TaskList extends Component {
     var target = event.target;
     var name = target.name;
     var value = target.value;
-    this.props.onFilter(name === "nameFilter" ? value : this.state.nameFilter, 
+    this.props.filter(name === "nameFilter" ? value : this.state.nameFilter.toLocaleLowerCase(), 
           name === "statusFilter" ? value : this.state.statusFilter)
     this.setState({
       [name] : value
     })
   }
-    changeStatus = (id) => {
-      this.props.changeStatus(id)
-    }
-    deleteItem = (id) => {
-      this.props.deleteItem(id)
-    }
-    updateForm =(id) => {
-      this.props.updateForm(id)
-    }
+    
     render(){
         var {tasks} = this.props;
         var eleTasks = tasks.map((task, index) => {
-            return <TaskItem key= {task.id} index = {index} task = {task} 
-            changeStatus = {this.changeStatus} deleteItem = {this.deleteItem} updateForm = {this.updateForm}/>
+            return <TaskItem key= {task.id} index = {index} task = {task} />
         });
         return (
             <table class="table table-bordered text-center mt-4">
@@ -68,4 +61,16 @@ class TaskList extends Component {
     }
 }
 
-export default TaskList;
+const mapStateToProps = (state) => {
+  return {
+    tasks : state.tasks
+  }
+}
+const mapDispatchToProps = (dispatch, props) => {
+  return {
+    filter : (filterName, filterStatus) => {
+      dispatch(actions.filter(filterName, filterStatus))
+    }
+  }
+}
+export default connect(mapStateToProps, mapDispatchToProps)(TaskList);

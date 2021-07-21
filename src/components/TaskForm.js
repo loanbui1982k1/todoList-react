@@ -1,14 +1,15 @@
-
 import React, {Component} from 'react';
+import {connect} from 'react-redux';
+import * as actions from './../actions/index';
 
 class TaskForm extends Component {
     constructor(props) {
       super(props);
-      this.state = {
-        id: "",
-        name : "",
-        status : false
-      }
+        this.state = {
+          id: "",
+          name : "",
+          status : false
+        }
     }
     close(){
         this.props.closeForm()
@@ -31,7 +32,7 @@ class TaskForm extends Component {
     onSubmit = (event) => {
       event.preventDefault();
       this.props.closeForm();
-      this.props.onSubmit(this.state)
+      this.props.addTask(this.state)  
     }
     onClear = () => {
       this.setState({
@@ -40,29 +41,43 @@ class TaskForm extends Component {
       })
     }
     componentDidMount() {
-      var {taskEdit} = this.props;
-      if (taskEdit) {
-        this.setState({
-          id : taskEdit.id,
-          name : taskEdit.name,
-          status: taskEdit.status
+      if (this.props.updateForm) {
+        var {updateForm} = this.props;
+        this.setState ({
+          id : updateForm.id,
+          name: updateForm.name,
+          status: updateForm.status
         })
       }
     }
     componentWillReceiveProps(nextProps) {
-      if (nextProps && nextProps.taskEdit) {
-        this.setState({
-          id : nextProps.taskEdit.id,
-          name : nextProps.taskEdit.name,
-          status: nextProps.taskEdit.status
+      if (nextProps.updateForm) {
+        var {updateForm} = nextProps;
+        this.setState ({
+          id : updateForm.id,
+          name: updateForm.name,
+          status: updateForm.status
         })
-      } else if (nextProps && nextProps.taskEdit === null) {
+      } else {
         this.setState({
           id: "",
           name : "",
           status : false
         })
       }
+      // if (nextProps && nextProps.taskEdit) {
+      //   this.setState({
+      //     id : nextProps.taskEdit.id,
+      //     name : nextProps.taskEdit.name,
+      //     status: nextProps.taskEdit.status
+      //   })
+      // } else if (nextProps && nextProps.taskEdit === null) {
+      //   this.setState({
+      //     id: "",
+      //     name : "",
+      //     status : false
+      //   })
+      // }
     }
     render(){
       return (
@@ -101,4 +116,20 @@ class TaskForm extends Component {
     }
 }
 
-export default TaskForm;
+
+const mapStateToProps = state => {
+  return {
+    updateForm: state.updateForm
+  }
+}
+const mapDispatchToProps = (dispatch, props) => {
+  return {
+    addTask : (task) => {
+      dispatch(actions.addTask(task))
+    },
+    closeForm : () => {
+      dispatch(actions.closeForm())
+    }
+  }
+}
+export default connect(mapStateToProps,mapDispatchToProps)(TaskForm);
